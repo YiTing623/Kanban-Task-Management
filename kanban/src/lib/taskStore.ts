@@ -139,13 +139,18 @@ export const useTaskStore = create<TaskState>()(
 );
 
 if (typeof window !== "undefined") {
-  (useTaskStore as any)?.persist?.onFinishHydration?.(() => {
-    const state = useTaskStore.getState();
+  type WithPersist<T> = T & {
+    persist?: {
+      onFinishHydration?: (cb: () => void) => void;
+    };
+  };
+  const store = useTaskStore as WithPersist<typeof useTaskStore>;
 
+  store.persist?.onFinishHydration?.(() => {
+    const state = useTaskStore.getState();
     if (!state.tasks || state.tasks.length === 0) {
       useTaskStore.setState({ tasks: sampleTasks });
     }
-
     useTaskStore.setState({ _hasHydrated: true });
   });
 }

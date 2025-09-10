@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { DndContext, DragEndEvent, closestCorners } from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import Column from "@/components/Column";
@@ -11,7 +11,6 @@ import type { Status } from "@/lib/types";
 export default function BoardPage() {
   const [open, setOpen] = useState(false);
   const { createTask, reorderWithinStatus, moveToStatusAtIndex } = useTaskStore();
-  const fileInput = useRef<HTMLInputElement | null>(null);
 
   const extra = useMemo(() => null, []);
 
