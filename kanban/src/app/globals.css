@@ -2,30 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
-@import "tailwindcss";
+:root { color-scheme: light dark; }
 
+body { @apply bg-neutral-50 text-neutral-900 antialiased; }
+.container { @apply mx-auto max-w-7xl px-4; }
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+.card { @apply rounded-2xl bg-white shadow-sm ring-1 ring-black/5; }
+.btn { @apply inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium ring-1 ring-inset ring-neutral-300 hover:bg-neutral-50 active:scale-[0.99]; }
+.input { @apply w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-neutral-400; }
+.tag { @apply rounded-full bg-neutral-100 px-2 py-0.5 text-xs text-neutral-700; }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
+.status-pill { @apply rounded-full px-2 py-0.5 text-xs font-semibold; }
+.status-scheduled { @apply bg-amber-100 text-amber-800; }
+.status-in-progress { @apply bg-sky-100 text-sky-800; }
+.status-done { @apply bg-emerald-100 text-emerald-800; }
