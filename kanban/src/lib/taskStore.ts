@@ -13,10 +13,14 @@ function genId(): string {
 }
 
 type Filters = { text: string; assignee: string; tag: string };
+type SortKey = "created" | "due" | "priority" | "title";
+type SortDir = "asc" | "desc";
+type SortState = { key: SortKey; dir: SortDir };
 
 type TaskState = {
   tasks: Task[];
   filters: Filters;
+  sort: SortState;
 
   _hasHydrated: boolean;
   setHasHydrated: (b: boolean) => void;
@@ -25,11 +29,11 @@ type TaskState = {
   updateTask: (id: string, delta: Partial<Task>) => void;
   deleteTask: (id: string) => void;
   moveTask: (id: string, status: Status) => void;
+  setFilters: (f: Partial<Filters>) => void;
+  setSort: (s: Partial<SortState>) => void;
+  clearAll: () => void;
   reorderWithinStatus: (activeId: string, overId: string) => void;
   moveToStatusAtIndex: (id: string, status: Status, index?: number) => void;
-
-  setFilters: (f: Partial<Filters>) => void;
-  clearAll: () => void;
 };
 
 export const useTaskStore = create<TaskState>()(
@@ -37,6 +41,7 @@ export const useTaskStore = create<TaskState>()(
     (set, get) => ({
       tasks: [],
       filters: { text: "", assignee: "", tag: "" },
+      sort: { key: "created", dir: "desc" },
 
       _hasHydrated: false,
       setHasHydrated: (b) => set({ _hasHydrated: b }),
@@ -117,6 +122,11 @@ export const useTaskStore = create<TaskState>()(
 
       setFilters: (f) => set({ filters: { ...get().filters, ...f } }),
 
+      setSort: (s) =>
+        set(({ sort }) => ({
+          sort: { ...sort, ...s },
+        })),
+
       clearAll: () =>
         set({ tasks: [], filters: { text: "", assignee: "", tag: "" } }),
     }),
@@ -141,15 +151,52 @@ if (typeof window !== "undefined") {
 }
 
 export function useFilteredTasks() {
-  const { tasks, filters } = useTaskStore();
+  const { tasks, filters, sort } = useTaskStore();
   const { text, assignee, tag } = filters;
 
   const q = text.trim().toLowerCase();
-  return tasks.filter((t) => {
+  const filtered = tasks.filter((t) => {
     const textOk =
       !q || (t.title + " " + t.description).toLowerCase().includes(q);
     const assigneeOk = !assignee || t.assignee === assignee;
     const tagOk = !tag || t.tags.includes(tag);
     return textOk && assigneeOk && tagOk;
   });
+
+  const prio = { high: 3, medium: 2, low: 1 } as const;
+
+  const cmp = (a: Task, b: Task) => {
+    let res = 0;
+
+    switch (sort.key) {
+      case "created": {
+        res = a.createdAt - b.createdAt;
+        break;
+      }
+      case "due": {
+        const aHas = !!a.dueDate;
+        const bHas = !!b.dueDate;
+        if (aHas && !bHas) res = -1;
+        else if (!aHas && bHas) res = 1;
+        else if (!aHas && !bHas) res = 0;
+        else res = Date.parse(a.dueDate!) - Date.parse(b.dueDate!);
+        break;
+      }
+      case "priority": {
+        const ar = a.priority ? prio[a.priority] : 0;
+        const br = b.priority ? prio[b.priority] : 0;
+        res = ar - br;
+        break;
+      }
+      case "title": {
+        res = a.title.localeCompare(b.title, undefined, { sensitivity: "base" });
+        break;
+      }
+    }
+
+    return sort.dir === "asc" ? res : -res;
+  };
+
+  return filtered.slice().sort(cmp);
 }
+
