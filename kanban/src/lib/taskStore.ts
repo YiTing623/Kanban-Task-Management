@@ -2,15 +2,24 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { v4 as uuid } from "uuid";
 import type { Task, Status } from "./types";
 import { sampleTasks } from "./sample";
+
+function genId(): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+  return Math.random().toString(36).slice(2) + Date.now().toString(36);
+}
 
 type Filters = { text: string; assignee: string; tag: string };
 
 type TaskState = {
   tasks: Task[];
   filters: Filters;
+
+  _hasHydrated: boolean;
+  setHasHydrated: (b: boolean) => void;
 
   createTask: (t: Omit<Task, "id" | "createdAt">) => string;
   updateTask: (id: string, delta: Partial<Task>) => void;
@@ -24,11 +33,14 @@ type TaskState = {
 export const useTaskStore = create<TaskState>()(
   persist(
     (set, get) => ({
-      tasks: sampleTasks,
+      tasks: [],
       filters: { text: "", assignee: "", tag: "" },
 
+      _hasHydrated: false,
+      setHasHydrated: (b) => set({ _hasHydrated: b }),
+
       createTask: (t) => {
-        const id = uuid();
+        const id = genId();
         const newTask: Task = { id, createdAt: Date.now(), ...t };
         set({ tasks: [newTask, ...get().tasks] });
         return id;
@@ -57,9 +69,22 @@ export const useTaskStore = create<TaskState>()(
     {
       name: "kanban-store",
       partialize: (s) => ({ tasks: s.tasks, filters: s.filters }),
+
     }
   )
 );
+
+if (typeof window !== "undefined") {
+  (useTaskStore as any)?.persist?.onFinishHydration?.(() => {
+    const state = useTaskStore.getState();
+
+    if (!state.tasks || state.tasks.length === 0) {
+      useTaskStore.setState({ tasks: sampleTasks });
+    }
+
+    useTaskStore.setState({ _hasHydrated: true });
+  });
+}
 
 export function useFilteredTasks() {
   const { tasks, filters } = useTaskStore();

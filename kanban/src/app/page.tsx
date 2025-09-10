@@ -21,7 +21,14 @@ export default function BoardPage() {
       <TaskFormModal
         open={open}
         onClose={() => setOpen(false)}
-        onSubmit={(v) => { const id = createTask(v); setOpen(false); location.assign(`/tasks/${id}`); }}
+        onSubmit={(v) => { const id = createTask(v); setOpen(false);
+          requestAnimationFrame(() => {
+            const el = document.querySelector(`[data-task-id="${id}"]`) as HTMLElement | null;
+            el?.scrollIntoView({ behavior: "smooth", block: "start" });
+            el?.classList.add("ring-2", "ring-sky-400");
+            setTimeout(() => el?.classList.remove("ring-2", "ring-sky-400"), 1200);
+          });          
+         }}
       />
     </div>
   );

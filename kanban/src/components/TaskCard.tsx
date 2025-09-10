@@ -3,11 +3,12 @@ import Link from "next/link";
 import { Calendar, Tag, User, Pencil, Trash2, MoveRight } from "lucide-react";
 import type { Task } from "@/lib/types";
 import { useTaskStore } from "@/lib/taskStore";
+import { formatDate } from "@/lib/date";
 
 export default function TaskCard({ task }: { task: Task }) {
   const { deleteTask } = useTaskStore();
   return (
-    <div className="card p-3 space-y-2">
+    <div className="card p-3 space-y-2" data-task-id={task.id}>
       <div className="flex items-start justify-between gap-2">
         <Link href={`/tasks/${task.id}`} className="font-medium hover:underline">
           {task.title}
@@ -21,7 +22,7 @@ export default function TaskCard({ task }: { task: Task }) {
         <span className="inline-flex items-center gap-1"><User size={14}/>{task.assignee}</span>
         {task.dueDate && (
           <span className="inline-flex items-center gap-1">
-            <Calendar size={14}/>{new Date(task.dueDate).toLocaleDateString()}
+            <Calendar size={14}/>{formatDate(task.dueDate)}
           </span>
         )}
         <div className="flex gap-1 items-center">
