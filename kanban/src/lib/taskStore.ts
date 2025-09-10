@@ -25,6 +25,8 @@ type TaskState = {
   updateTask: (id: string, delta: Partial<Task>) => void;
   deleteTask: (id: string) => void;
   moveTask: (id: string, status: Status) => void;
+  reorderWithinStatus: (activeId: string, overId: string) => void;
+  moveToStatusAtIndex: (id: string, status: Status, index?: number) => void;
 
   setFilters: (f: Partial<Filters>) => void;
   clearAll: () => void;
@@ -60,6 +62,58 @@ export const useTaskStore = create<TaskState>()(
         set({
           tasks: get().tasks.map((x) => (x.id === id ? { ...x, status } : x)),
         }),
+
+      reorderWithinStatus: (activeId, overId) =>
+        set(() => {
+          const list = get().tasks.slice();
+          const activeTask = list.find(t => t.id === activeId);
+          const overTask = list.find(t => t.id === overId);
+          if (!activeTask || !overTask) return { tasks: list };
+          if (activeTask.status !== overTask.status) return { tasks: list };
+
+          const status = activeTask.status;
+          const indices = list
+            .map((t, idx) => ({ t, idx }))
+            .filter(x => x.t.status === status)
+            .map(x => x.idx);
+
+          const from = indices.findIndex(i => list[i].id === activeId);
+          const to = indices.findIndex(i => list[i].id === overId);
+          if (from === -1 || to === -1 || from === to) return { tasks: list };
+
+          const newList = list.slice();
+          const [item] = newList.splice(indices[from], 1);
+          const target = indices[to] - (indices[from] < indices[to] ? 1 : 0);
+          newList.splice(target, 0, item);
+          return { tasks: newList };
+        }),
+
+      moveToStatusAtIndex: (id, status, index) =>
+        set(() => {
+          const list = get().tasks.slice();
+          const fromIdx = list.findIndex(t => t.id === id);
+          if (fromIdx === -1) return { tasks: list };
+
+          const task = { ...list[fromIdx], status };
+          list.splice(fromIdx, 1);
+
+          const indices = list
+            .map((t, idx) => ({ t, idx }))
+            .filter(x => x.t.status === status)
+            .map(x => x.idx);
+
+          let insertAt: number;
+          if (indices.length === 0) {
+            insertAt = list.length;
+          } else if (index === undefined || index >= indices.length) {
+            insertAt = indices[indices.length - 1] + 1;
+          } else {
+            insertAt = indices[index];
+          }
+
+          list.splice(insertAt, 0, task);
+          return { tasks: list };
+        }),        
 
       setFilters: (f) => set({ filters: { ...get().filters, ...f } }),
 

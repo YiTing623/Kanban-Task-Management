@@ -33,7 +33,11 @@ export default function TaskCard({ task }: { task: Task }) {
 
       <div className="flex justify-end gap-2 pt-1">
         <Link href={`/tasks/${task.id}`} className="btn"><Pencil size={16}/>Edit</Link>
-        <button className="btn text-red-600" onClick={() => deleteTask(task.id)}>
+        <button className="btn text-red-600" onClick={() => {
+          if (confirm(`Delete “${task.title}”?`)) {
+            deleteTask(task.id);
+          }
+        }}>
           <Trash2 size={16}/>Delete
         </button>
         <Link href={`/tasks/${task.id}`} className="btn"><MoveRight size={16}/>Open</Link>
