@@ -20,7 +20,7 @@ export default function BoardPage() {
   const [editing, setEditing] = useState<Task | null>(null);
 
   const s = useTaskStore();
-  const { createTask, updateTask } = s;
+  const { createTask } = s;
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
