@@ -12,6 +12,7 @@ import {
 import type { Task } from "@/lib/types";
 import { useTaskStore } from "@/lib/taskStore";
 import { formatDate } from "@/lib/date";
+import { highlight } from "@/lib/highlight";
 
 type Props = {
   task: Task;
@@ -32,6 +33,7 @@ export default function TaskCard({
   onToggleSelect,
 }: Props) {
   const { deleteTask } = useTaskStore();
+  const query = useTaskStore((s) => s.filters.text);
   const stopPointer = (e: React.SyntheticEvent) => e.stopPropagation();
 
   return (
@@ -57,7 +59,7 @@ export default function TaskCard({
             onMouseDown={stopPointer}
             onPointerDown={stopPointer}
           >
-            {task.title}
+            {query ? highlight(task.title, query) : task.title}
           </Link>
         </div>
 
@@ -76,12 +78,14 @@ export default function TaskCard({
         </div>
       </div>
 
-      <p className="text-sm text-neutral-600 line-clamp-2">{task.description}</p>
+      <p className="text-sm text-neutral-600 line-clamp-2">
+        {query ? highlight(task.description, query) : task.description}
+      </p>
 
       <div className="flex flex-wrap gap-2 items-center text-xs text-neutral-600">
         <span className="inline-flex items-center gap-1">
           <User size={14} />
-          {task.assignee}
+          {query ? highlight(task.assignee, query) : task.assignee}
         </span>
         {task.dueDate && (
           <span className="inline-flex items-center gap-1">
@@ -93,7 +97,7 @@ export default function TaskCard({
           <Tag size={14} />
           {task.tags.map((t) => (
             <span key={t} className="tag">
-              {t}
+              {query ? highlight(t, query) : t}
             </span>
           ))}
         </div>
