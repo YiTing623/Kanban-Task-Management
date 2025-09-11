@@ -3,6 +3,8 @@
 A small, production-style Kanban built with **Next.js (App Router)**, **TypeScript**, **Tailwind**, **Zustand**, and **dnd-kit**.  
 It includes CRUD, drag-and-drop between columns, backlog list, task detail route, filters, persisted preferences, sorting, bulk actions, search highlighting, export/import, and meaningful loading/error states.
 
+**Live Demo**: https://kanban-task-management-btlddioq2-yiting623s-projects.vercel.app/
+
 ---
 
 ## Setup Instructions
@@ -148,3 +150,25 @@ Estimated: 4 hours
 - **Export/Import**: Download JSON, then re‑import to merge/restore.
 - **Detail route**: `/tasks/[id]` shows full view and inline edit; move to next status.
 - **Loading/Error**: throttle network → skeletons match page type; error boundaries allow recovery.
+- **Reset sample data**: see the section below to quickly restore the default dataset.
+
+---
+
+## Reset Sample Data
+
+You can restore the built-in sample tasks at any time:
+
+- **Option A — UI button (if enabled)**:
+If your header shows a Reset sample button (via resetToSample()), click it to reload the default dataset and clear filters/sort to defaults.
+- **Option B — Manual (no code changes)**:
+1. Open DevTools → Application → Local Storage.
+
+2. Remove the kanban-store key, then refresh the page.
+On hydration, the app seeds from sampleTasks again.
+- **Option C — Console snippet**:
+```bash
+// Reset to sample data instantly
+localStorage.removeItem("kanban-store");
+location.reload();
+```
+The app seeds sample data only when no persisted state exists. The reset steps above recreate that “first-run” state.
