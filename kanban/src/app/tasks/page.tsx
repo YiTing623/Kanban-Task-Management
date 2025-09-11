@@ -47,8 +47,8 @@ export default function TasksListPage() {
 
   const extra = (
     <>
-      <button className="btn" onClick={handleExport}>Export</button>
-      <button className="btn" onClick={() => fileInput.current?.click()}>Import</button>
+      <button className="btn btn-ghost" onClick={handleExport}>Export</button>
+      <button className="btn btn-ghost" onClick={() => fileInput.current?.click()}>Import</button>
       <input
         ref={fileInput}
         type="file"
