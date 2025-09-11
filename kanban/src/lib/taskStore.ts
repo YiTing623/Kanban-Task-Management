@@ -4,6 +4,8 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Task, Status } from "./types";
 import { sampleTasks } from "./sample";
+import { arrayMove } from "@dnd-kit/sortable";
+
 
 function genId(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -13,9 +15,54 @@ function genId(): string {
 }
 
 type Filters = { text: string; assignee: string; tag: string };
-type SortKey = "created" | "due" | "priority" | "title";
+type SortKey = "manual" | "created" | "due" | "priority" | "title";
 type SortDir = "asc" | "desc";
 type SortState = { key: SortKey; dir: SortDir };
+
+const prioRank = { high: 3, medium: 2, low: 1 } as const;
+
+function cmpForSort(sort: SortState) {
+  return (a: Task, b: Task) => {
+    let res = 0;
+    switch (sort.key) {
+      case "created":
+        res = a.createdAt - b.createdAt;
+        break;
+      case "due": {
+        const ah = !!a.dueDate, bh = !!b.dueDate;
+        if (ah && !bh) res = -1;
+        else if (!ah && bh) res = 1;
+        else if (!ah && !bh) res = 0;
+        else res = Date.parse(a.dueDate!) - Date.parse(b.dueDate!);
+        break;
+      }
+      case "priority": {
+        const ar = a.priority ? prioRank[a.priority] : 0;
+        const br = b.priority ? prioRank[b.priority] : 0;
+        res = ar - br;
+        break;
+      }
+      case "title":
+        res = a.title.localeCompare(b.title, undefined, { sensitivity: "base" });
+        break;
+      case "manual":
+      default:
+        res = 0;
+    }
+    return sort.dir === "asc" ? res : -res;
+  };
+}
+
+function ensureManualBaseline(list: Task[], sort: SortState): Task[] {
+  if (sort.key === "manual") return list;
+
+  const cmp = cmpForSort(sort);
+  const scheduled = list.filter(t => t.status === "scheduled").slice().sort(cmp);
+  const inprog   = list.filter(t => t.status === "in-progress").slice().sort(cmp);
+  const done     = list.filter(t => t.status === "done").slice().sort(cmp);
+
+  return [...scheduled, ...inprog, ...done];
+}
 
 type TaskState = {
   tasks: Task[];
@@ -69,28 +116,33 @@ export const useTaskStore = create<TaskState>()(
         }),
 
       reorderWithinStatus: (activeId, overId) =>
-        set(() => {
-          const list = get().tasks.slice();
-          const activeTask = list.find(t => t.id === activeId);
-          const overTask = list.find(t => t.id === overId);
-          if (!activeTask || !overTask) return { tasks: list };
-          if (activeTask.status !== overTask.status) return { tasks: list };
+        set((state) => {
+          let base = state.tasks.slice();
+          if (state.sort.key !== "manual") {
+            base = ensureManualBaseline(base, state.sort);
+          }
 
-          const status = activeTask.status;
-          const indices = list
-            .map((t, idx) => ({ t, idx }))
-            .filter(x => x.t.status === status)
-            .map(x => x.idx);
+          const active = base.find(t => t.id === activeId);
+          const over   = base.find(t => t.id === overId);
+          if (!active || !over) return {};
 
-          const from = indices.findIndex(i => list[i].id === activeId);
-          const to = indices.findIndex(i => list[i].id === overId);
-          if (from === -1 || to === -1 || from === to) return { tasks: list };
+          const status = active.status;
+          if (over.status !== status) return {};
 
-          const newList = list.slice();
-          const [item] = newList.splice(indices[from], 1);
-          const target = indices[to] - (indices[from] < indices[to] ? 1 : 0);
-          newList.splice(target, 0, item);
-          return { tasks: newList };
+          const group = base.filter(t => t.status === status);
+          const ids = group.map(t => t.id);
+          const from = ids.indexOf(activeId);
+          const to   = ids.indexOf(overId);
+          if (from < 0 || to < 0 || from === to) {
+            return state.sort.key === "manual" ? {} : { tasks: base, sort: { key: "manual", dir: "asc" } };
+          }
+
+          const newIds = arrayMove(ids, from, to);
+          const byId = new Map(base.map(t => [t.id, t] as const));
+          let gi = 0;
+          const newTasks = base.map(t => (t.status !== status ? t : byId.get(newIds[gi++])!));
+
+          return { tasks: newTasks, sort: { key: "manual", dir: "asc" } };
         }),
 
       moveToStatusAtIndex: (id, status, index) =>
@@ -108,17 +160,13 @@ export const useTaskStore = create<TaskState>()(
             .map(x => x.idx);
 
           let insertAt: number;
-          if (indices.length === 0) {
-            insertAt = list.length;
-          } else if (index === undefined || index >= indices.length) {
-            insertAt = indices[indices.length - 1] + 1;
-          } else {
-            insertAt = indices[index];
-          }
+          if (indices.length === 0) insertAt = list.length;
+          else if (index === undefined || index >= indices.length) insertAt = indices[indices.length - 1] + 1;
+          else insertAt = indices[index];
 
           list.splice(insertAt, 0, task);
-          return { tasks: list };
-        }),        
+          return { tasks: list, sort: { key: "manual", dir: "asc" } };
+        }),    
 
       setFilters: (f) => set({ filters: { ...get().filters, ...f } }),
 
@@ -168,6 +216,8 @@ export function useFilteredTasks() {
     return textOk && assigneeOk && tagOk;
   });
 
+  if (sort.key === "manual") return filtered; 
+
   const prio = { high: 3, medium: 2, low: 1 } as const;
 
   const cmp = (a: Task, b: Task) => {
@@ -204,4 +254,3 @@ export function useFilteredTasks() {
 
   return filtered.slice().sort(cmp);
 }
-

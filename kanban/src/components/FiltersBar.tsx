@@ -4,6 +4,7 @@ import { useTaskStore } from "@/lib/taskStore";
 import { Plus } from "lucide-react";
 
 const SORT_OPTIONS = [
+  { v: "manual:asc",   label: "Manual (Board order)" },
   { v: "created:desc", label: "Created: New → Old" },
   { v: "created:asc",  label: "Created: Old → New" },
   { v: "due:asc",      label: "Due: Soonest" },

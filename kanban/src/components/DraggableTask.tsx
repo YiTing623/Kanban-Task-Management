@@ -4,19 +4,20 @@ import { useSortable } from "@dnd-kit/sortable";
 import type { Task } from "@/lib/types";
 import TaskCard from "./TaskCard";
 
-export default function DraggableTask({ task }: { task: Task }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+export default function DraggableTask({ task, onEdit }: { task: Task; onEdit: (task: Task) => void }) {
+  const { setNodeRef, transform, transition, isDragging, attributes, listeners } =
     useSortable({ id: task.id });
 
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.6 : 1,
+    touchAction: "none",
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <TaskCard task={task} />
+    <div ref={setNodeRef} style={style}>
+      <TaskCard task={task} dragHandleProps={{ ...attributes, ...listeners }} onEdit={() => onEdit(task)} />
     </div>
   );
 }
