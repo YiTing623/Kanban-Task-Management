@@ -23,7 +23,7 @@ export default function Column({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-neutral-700">{title}</h3>
+        <h3 className="font-serif text-base text-cocoa">{title}</h3>
         <span className="text-xs text-neutral-500">{items.length}</span>
       </div>
 

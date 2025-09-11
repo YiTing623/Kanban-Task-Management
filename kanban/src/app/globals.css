@@ -2,17 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
-:root { color-scheme: light dark; }
+:root { color-scheme: light; }
 
-body { @apply bg-neutral-50 text-neutral-900 antialiased; }
+body {
+  @apply text-cocoa antialiased;
+  background:
+    radial-gradient(900px 500px at 10% -10%, #F9ECD3 0%, rgba(249,236,211,0) 60%),
+    radial-gradient(800px 450px at 90% 0%, #F3E4C6 0%, rgba(243,228,198,0) 60%),
+    linear-gradient(180deg, #FFF8EE 0%, #FFFDF9 60%, #FFF8EE 100%);
+}
+
 .container { @apply mx-auto max-w-7xl px-4; }
 
-.card { @apply rounded-2xl bg-white shadow-sm ring-1 ring-black/5; }
-.btn { @apply inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium ring-1 ring-inset ring-neutral-300 hover:bg-neutral-50 active:scale-[0.99]; }
-.input { @apply w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-neutral-400; }
-.tag { @apply rounded-full bg-neutral-100 px-2 py-0.5 text-xs text-neutral-700; }
+.card { @apply rounded-2xl bg-white shadow-soft ring-1 ring-black/5; }
+.btn { @apply inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition; }
+.btn-primary { @apply bg-honey text-cocoa shadow-soft hover:brightness-105 active:brightness-95; }
+.btn-ghost   { @apply bg-white ring-1 ring-sand hover:bg-sand/60; }
+.input { @apply w-full rounded-xl border border-sand bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-honey; }
+.tag { @apply rounded-full bg-sand px-2 py-0.5 text-xs text-cocoa/80; }
 
 .status-pill { @apply rounded-full px-2 py-0.5 text-xs font-semibold; }
 .status-scheduled { @apply bg-amber-100 text-amber-800; }
-.status-in-progress { @apply bg-sky-100 text-sky-800; }
+.status-in-progress { @apply bg-rose-100 text-rose-800; }
 .status-done { @apply bg-emerald-100 text-emerald-800; }

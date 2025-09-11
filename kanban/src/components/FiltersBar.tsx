@@ -70,7 +70,7 @@ export default function FiltersBar({
         </select>
 
         <button
-          className="btn md:ml-2"
+          className="btn btn-ghost"
           onClick={() => setFilters({ text: "", assignee: "", tag: "" })}
           aria-label="Clear all filters"
         >
@@ -80,7 +80,7 @@ export default function FiltersBar({
 
       <div className="flex items-center gap-2">
         {extraActions}
-        <button onClick={onCreate} className="btn self-start md:self-auto">
+        <button onClick={onCreate} className="btn btn-primary self-start md:self-auto">
           <Plus size={16}/>New Task
         </button>
       </div>

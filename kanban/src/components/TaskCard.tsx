@@ -20,7 +20,7 @@ export default function TaskCard({ task, dragHandleProps, onEdit }: Props) {
       <div className="flex items-start justify-between gap-2">
         <Link
           href={`/tasks/${task.id}`}
-          className="font-medium hover:underline"
+          className="font-serif text-[17px] leading-snug hover:underline"
           onMouseDown={stopPointer}
           onPointerDown={stopPointer}
         >
@@ -59,7 +59,7 @@ export default function TaskCard({ task, dragHandleProps, onEdit }: Props) {
 
       <div className="flex justify-end gap-2 pt-1">
         <button
-          className="btn"
+          className="btn btn-ghost"
           onMouseDown={stopPointer}
           onPointerDown={stopPointer}
           onClick={() => onEdit?.()}
@@ -68,7 +68,7 @@ export default function TaskCard({ task, dragHandleProps, onEdit }: Props) {
         </button>
 
         <button
-          className="btn text-red-600"
+          className="btn btn-ghost text-red-600"
           onMouseDown={stopPointer}
           onPointerDown={stopPointer}
           onClick={() => {
@@ -82,7 +82,7 @@ export default function TaskCard({ task, dragHandleProps, onEdit }: Props) {
 
         <Link
           href={`/tasks/${task.id}`}
-          className="btn"
+          className="btn btn-ghost"
           onMouseDown={stopPointer}
           onPointerDown={stopPointer}
         >
