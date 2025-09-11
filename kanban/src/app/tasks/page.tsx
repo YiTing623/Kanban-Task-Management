@@ -59,7 +59,7 @@ export default function TasksListPage() {
     <div className="flex items-center gap-2">
       {!s.selectionMode ? (
         <>
-          <button className="btn" onClick={() => s.toggleSelectionMode(true)}>
+          <button className="btn btn-ghost" onClick={() => s.toggleSelectionMode(true)}>
             Select
           </button>
           <button className="btn btn-ghost" onClick={handleExport}>
@@ -83,22 +83,22 @@ export default function TasksListPage() {
         <>
           <span className="text-sm">{selectedCount} selected</span>
           <button
-            className="btn"
+            className="btn btn-ghost"
             onClick={() => s.selectAll("visible", tasks.map((t) => t.id))}
           >
-            Select visible
+            Select all
           </button>
-          <button className="btn" onClick={() => s.bulkMove("scheduled")}>
+          <button className="btn btn-ghost" onClick={() => s.bulkMove("scheduled")}>
             To Scheduled
           </button>
-          <button className="btn" onClick={() => s.bulkMove("in-progress")}>
+          <button className="btn btn-ghost" onClick={() => s.bulkMove("in-progress")}>
             To In&nbsp;Progress
           </button>
-          <button className="btn" onClick={() => s.bulkMove("done")}>
+          <button className="btn btn-ghost" onClick={() => s.bulkMove("done")}>
             To Done
           </button>
           <button
-            className="btn text-red-600"
+            className="btn btn-ghost text-red-600"
             onClick={() => {
               if (
                 selectedCount &&
@@ -110,7 +110,7 @@ export default function TasksListPage() {
             Delete
           </button>
           <button
-            className="btn"
+            className="btn btn-ghost"
             onClick={() => {
               s.clearSelection();
               s.toggleSelectionMode(false);
@@ -126,6 +126,10 @@ export default function TasksListPage() {
   return (
     <div className="space-y-4">
       <FiltersBar onCreate={() => setOpen(true)} extraActions={extra} />
+
+      <button className="btn btn-ghost" onClick={() => useTaskStore.getState().resetToSample()}>
+        Reset sample data
+      </button>    
 
       <div className="card overflow-hidden">
         <table className="w-full text-sm">

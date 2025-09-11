@@ -128,7 +128,11 @@ export default function BoardPage() {
 
   return (
     <div className="space-y-4">
+
       <FiltersBar onCreate={() => setCreateOpen(true)} extraActions={bulkBar} />
+      <button className="btn btn-ghost" onClick={() => useTaskStore.getState().resetToSample()}>
+        Reset sample data
+      </button>        
 
       <DndContext sensors={sensors} onDragEnd={onDragEnd} collisionDetection={closestCorners}>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">

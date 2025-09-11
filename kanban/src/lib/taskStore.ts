@@ -84,6 +84,7 @@ type TaskState = {
 
   setFilters: (f: Partial<Filters>) => void;
   setSort: (s: Partial<SortState>) => void;
+  resetToSample: () => void;
 
   clearAll: () => void;
 
@@ -103,6 +104,8 @@ export const useTaskStore = create<TaskState>()(
   persist(
     (set, get) => ({
       tasks: [],
+      resetToSample: () =>
+        set({ tasks: sampleTasks, filters: { text: "", assignee: "", tag: "" }, sort: { key: "created", dir: "desc" } }),      
       filters: { text: "", assignee: "", tag: "" },
       sort: { key: "created", dir: "desc" },
 
