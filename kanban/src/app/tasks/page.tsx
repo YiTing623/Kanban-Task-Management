@@ -128,7 +128,7 @@ export default function TasksListPage() {
       <FiltersBar onCreate={() => setOpen(true)} extraActions={extra} />
 
       <button className="btn btn-ghost" onClick={() => useTaskStore.getState().resetToSample()}>
-        Reset sample data
+        Reload/Reset sample data
       </button>    
 
       <div className="card overflow-hidden">
