@@ -3,7 +3,7 @@
 A small, production-style Kanban built with **Next.js (App Router)**, **TypeScript**, **Tailwind**, **Zustand**, and **dnd-kit**.  
 It includes CRUD, drag-and-drop between columns, backlog list, task detail route, filters, persisted preferences, sorting, bulk actions, search highlighting, export/import, and meaningful loading/error states.
 
-**Live Demo**: https://kanban-task-management-btlddioq2-yiting623s-projects.vercel.app/
+**Live Demo**: https://kanban-task-management-rosy.vercel.app/
 
 ---
 
